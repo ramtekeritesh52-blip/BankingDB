@@ -45,12 +45,81 @@ create table Loans(
     EndDate date
 );
 
+ALTER TABLE Customers
+add DateOfBirth DATE;
+
+desc customers;
+
+alter table customers
+modify Phone varchar(20);
+
+alter table accounts
+add constraint chk_MinBalance
+check (Balance >= 1000);
+
+drop table accountbranches;
+
+alter table accounts
+add	CustomerID int;
+
+alter table accounts
+add constraint FK_Accounts_Customers
+foreign key (CustomerID)
+references customers(customerID);
+
+alter table accounts
+add constraint
+primary key (AccountID);
+
+desc accounts;
+
+alter table customers
+modify FirstName varchar(50) NOT null;
+
+
+alter table customers
+add constraint uni_email
+unique (email);
+
+desc customers;
+
+alter table branches
+add constraint pk_branchID
+primary key (BranchID);
+desc branches;
+
+alter table accounts
+add BranchID int;
+
+alter table accounts
+add constraint fk_branch_customer
+foreign key (BranchID)
+references branches(BranchID);
+
+alter table transactions
+add AccountID int;
+
+alter table transactions
+add constraint fk_transaction_accounts
+foreign key (accountID)
+references accounts(accountID);
+
+alter table loans
+add customerID int primary key;
+desc loans;
+
+
+alter table loans
+add constraint FK_Loans_Customers
+foreign key (customerID)
+references customers (customerID);
 
 
 
 
 
--- select * from Customers;
+
+
 
 
 
