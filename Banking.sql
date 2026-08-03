@@ -100,9 +100,24 @@ alter table transactions
 add AccountID int;
 
 alter table transactions
+add constraint PK_transaction
+primary key (TransactionID);
+
+alter table transactions
 add constraint fk_transaction_accounts
 foreign key (accountID)
 references accounts(accountID);
+
+
+-- loans connect with customer
+
+alter table loans
+add constraint PK_LoanID
+primary key (loanID);
+
+-- drop
+alter table loans
+drop constraint FK_Loans_Customers;
 
 alter table loans
 add customerID int primary key;
@@ -113,6 +128,19 @@ alter table loans
 add constraint FK_Loans_Customers
 foreign key (customerID)
 references customers (customerID);
+
+select
+	constraint_name,
+    constraint_type
+from	information_schema.table_constraints
+where table_schema = 'bankingdb'
+and	table_name = 'loans';
+
+show create table accounts;
+
+alter table loans
+add constraint PK_loan
+primary key (LoanId);
 
 
 
