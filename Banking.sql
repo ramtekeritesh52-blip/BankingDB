@@ -15,6 +15,8 @@ create table Accounts(
     AccountType varchar(20),
     Balance decimal(10,2)
 );
+
+-- to check the table structure
 -- desc Accounts;
 
 create table Transactions(
@@ -134,22 +136,63 @@ select
     constraint_type
 from	information_schema.table_constraints
 where table_schema = 'bankingdb'
-and	table_name = 'loans';
+and	table_name = 'customers';
 
+-- by using this Primary Key,Foreign Keys,Constraint names,Data types,Indexes can find 
 show create table accounts;
 
+-- in one table change one primary to another table 
+-- first need to drop the fk key then pk
+ALTER TABLE loans
+DROP FOREIGN KEY FK_Loans_Customers;
 alter table loans
-add constraint PK_loan
+drop primary key;
+
+-- adding fk in the loans table 
+alter table loans
+add constraint FK_Loans_Customers
+foreign key (customerID)
+references customers (customerID);
+
+-- adding pk in the loan table 
+alter table loans
+add constraint pk_LoanId
 primary key (LoanId);
 
+alter table customers
+drop AccountCreationDate;
+
+alter table customers
+add AccountCreationDate date;
+
+-- DML  Commands
+
+select * from customers;
+insert into customers
+values(101,'Rahul', 'Sharma' , 'rahul@gmail.com', '9898989090','1998-04-15');
+
+select * from accounts;
+insert into accounts
+(AccountID, CustomerID, AccountType,Balance)
+values(201,101,'Savings','25000');
+
+select * from customers;
+insert into customers
+values(102,'Ketan','Tiwari','ketan@gmail.com','8908098894','2000-02-22','2026-08-04');
+
+insert into customers
+(customerID,FirstName,LastName,Email,Phone,DateOfBirth,AccountCreationDate)
+value
+(103,'Ratan','Bhandari','ratan@gmail.com','7908098894','2000-04-22','2026-08-04'),
+(104,'Amir','Rehadiya','amir@gmail.com','8908098894','2003-04-22','2026-08-04');
+
+select * from customers;
+select * from accounts;
+
+update customers
+set AccountCreationDate = '2025-04-23'
+where customerID =101;
 
 
-
-
-
-
-
-
-
-    
+    -- 3 branch 5 entry
 
