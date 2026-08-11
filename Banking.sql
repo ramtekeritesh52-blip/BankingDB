@@ -402,8 +402,117 @@ from accounts;
 -- FIND distinct (unique) transactionType AccountID
 select distinct TransactionType, AccountID from transactions;
 
+-- limit and offset
+
+select * from customers
+limit 2 offset 2;
+
+-- top 2 customer with highest balance 
+select * from accounts
+order by Balance desc
+limit 2 ;
+
+select * from accounts
+order by Balance desc
+limit 1 offset 2;
+
+select * from accounts
+order by Balance desc
+limit 2,1;  -- here 2 specifies the rows to skip and 1 specifies the number of rows to return
+
+-- 	NULL / NOT NULL
+
+insert into customers
+(CustomerID,FirstName,LastName, Email,Phone,DateOfBirth,AccountCreationDate)
+values
+(105,'Suhas','Borkar','suhas@gmail.com',null,'2003-02-22','2026-05-05'),
+(106,'Pranit','Kamble','pranit@gmail.com',null,'2000-02-12','2026-01-05'),
+(107,'Sahil','Kadu','sahil@gmail.com',null,'2004-02-22','2026-03-05'),
+(108,'Ayush','Sharma','ayush@gmail.com','9645254102','2003-12-22','2026-05-12'),
+(109,'Aniket','Borkar','aniket@gmail.com',null,'2006-02-22','2026-01-30');
+
+select * from customers
+where phone is null;
+
+select * from customers
+where phone is not null;
+
+insert into accounts
+(AccountID,AccountType,Balance,CustomerID,BranchID)
+values
+(206,'saving',45000,105,1),
+(207,'current',75000,106,2),
+(208,'saving',45000,107,1),
+(209,'current',34000,108,3),
+(210,'current',120000,109,3);
+
+insert into transactions
+(transactionID,transactionDate,Amount,transactionType,AccountID)
+values
+(5,'2026-06-25',6000,'Credit',205),
+(6,'2026-06-26',7000,'Debit',206),
+(7,'2026-06-25',40000,'Credit',207),
+(8,'2026-05-25',3000,'Debit',208),
+(9,'2026-06-25',6000,'Credit',209);
+
+insert into loans
+(LoanId,LoanAmount,InterestRate,StartDate,EndDate,CustomerID)
+values
+(5,45000,9.15,'2026-01-01','2027-01-01',105),
+(6,30000,8.15,'2025-02-01','2027-02-01',106),
+(7,70000,7.15,'2026-03-01','2027-03-01',107),
+(8,80000,8.15,'2026-04-22','2027-04-22',108);
 
 
+-- case 40> high value cust , < low value cust , cust categeory
+
+SELECT 
+    AccountID,
+    AccountType,
+    Balance,
+    CASE
+        WHEN Balance >= 50000 THEN 'High Value Customer'
+        ELSE 'Low Value Customer'
+    END AS CustomerCategory
+FROM accounts;
+	
+	
+-- Categorize the deposite in the transaction table as per condition given
+-- if above 10000(included) High Amount
+-- if 5000 (included ) to 10000 medium amount
+-- if upto 5000 low amount 
+-- for transaction type withdrawal "Not Applicable"
+-- credited means Deposite, debit means withdrawal
+select *,
+    case
+		when TransactionType ='credit' and Amount >= 10000 then 'High Amount'
+        when TransactionType ='credit' and Amount >=5000 then 'Medium Amount'
+        when TransactionType ='credit' and Amount < 5000 then "Low Amount"
+        else "Not Applicable"
+	end as TransactionCategeory
+from transactions;
+
+select CustomerID ,upper(FirstName), upper(LastName)
+from customers;
+
+select CustomerID ,lower(FirstName), lower(LastName)
+from customers;
+
+select lastname , length(lastname) from customers;
+
+select length("Nagpur") as bytes;  -- gives o/p in number of bytes
+select length("नागपूर");		 -- gives o/p in number of bytes
+select char_length("नागपूर");		-- gives o/p in number of characters
+select char_length("Nagpur");  -- gives o/p in number of characters
+
+
+select CustomerID , concat(FirstName," ",LastName) as Full_Name , phone
+from customers;
+
+select substring("hello world",7,5);
+
+-- r.sharma
+select CustomerID , concat(substring(firstname,1,1),".",substring(lastname,1)) as Full_Name , phone from customers;
 
 
 
@@ -421,4 +530,100 @@ select * from loans;
 select * from transactions;
 select * from branches;
 select * from customers;
+
+-- Display the CustomerID, FirstName and Email of customers whose AccountCreationDate is after 1- Jan-2025. 
+select CustomerID , FirstName , Email 
+from customers
+where AccountCreationDate > '2026-01-01';
+
+-- 2.Display all Savings accounts having balance greater than ₹20,000.
+select * from accounts
+where AccountType = 'Saving' and
+		Balance > 20000;
+        
+-- 3.Display customers whose Phone number is NOT NULL.
+select * from customers
+where phone is not null;
+
+-- 4.Display distinct Account Types available in the Accounts table.
+select distinct AccountType
+from accounts;
+
+-- 5.Display customers whose FirstName starts with R
+select * from customers
+where FirstName like 'R%';
+
+-- 6.Display accounts having Balance between ₹20,000 and ₹60,000.
+select * from accounts 
+where Balance between 20000 and 60000;
+
+-- 7.Display all Deposit transactions whose amount is greater than ₹3000.
+select * from transactions
+where TransactionType = 'Credit' and amount > 3000;
+
+-- 8.Display customers whose CustomerID is IN (101,103,106,109).
+select * from customers
+where CustomerID  in (101,103,106,109);
+
+--  9. Display first 5 customers ordered by CustomerID.
+select * from customers
+order by CustomerID
+limit 5;
+
+-- 10.Display customers after skipping first 3 records.
+select * from customers
+order by CustomerID
+limit 99999 offset 3;
+
+
+-- 11.Display Savings accounts having balance between ₹20,000 and ₹80,000
+select * from accounts
+where AccountType = 'Saving' and
+	Balance between 20000  and 80000;
+    
+-- 12.Display customer names whose phone number is NULL and account was created after 2025-01-01.
+select * from customers 
+where Phone is null and
+	AccountCreationDate > '2025-01-01';
+    
+-- 13.Display all customers whose FirstName starts with 'A' OR LastName starts with 'S'.
+select * from customers 
+where FirstName like 'A%' or 
+	LastName like 'S%';
+
+
+-- 14 Display all accounts whose AccountType is Savings or Salary and balance is greater than ₹10,000.
+select * from accounts
+where AccountType in ('Saving','Salary') and
+	Balance > 10000;
+
+-- 15.Display customers whose CustomerID is IN (101,102,105,109) and phone number is not NULL.
+select * from customers 
+where CustomerID in (101,102,105,109) and
+	Phone is not null;
+
+-- 16.Display transactions whose Amount is between ₹2,000 and ₹8,000 and TransactionType is Deposit.
+select * from transactions
+where Amount between 2000 and 8000 
+and TransactionType ='Credit';
+
+-- 17.Display distinct BranchIDs from Accounts where balance is greater than ₹30,000.
+select distinct BranchID , Balance
+from accounts
+where Balance > 30000;
+
+-- 18.Display customers whose email contains gmail and first name ends with a. 
+select * from customers 
+where FirstName like  '%a' and
+		Email is not null;
+        
+-- 19.Display customers whose DateOfBirth is between 1995 and 2000.
+select * from customers 
+where year(DateOfBirth) between '1995' and '2000';
+
+-- 20. Display first 3 Savings accounts having balance greater than ₹25,000.
+select * from accounts
+where AccountType = 'Saving' and
+	Balance > 25000 
+    limit 3;
 
