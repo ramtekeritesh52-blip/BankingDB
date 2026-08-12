@@ -514,6 +514,77 @@ select substring("hello world",7,5);
 -- r.sharma
 select CustomerID , concat(substring(firstname,1,1),".",substring(lastname,1)) as Full_Name , phone from customers;
 
+-- Trim() function , by using without trim and then by using  trim
+select length("   hello World   ");
+select length(trim("   Hello World  ")); 
+select length(trim(substring("Hello World",6)));
+
+-- Replace Function
+select replace("Mat mat Mat","M","C");
+
+-- math function
+
+-- round function , avg function 
+select round(avg(Balance),2) from accounts
+where AccountType ='Saving';
+
+-- ceil function  , round up
+select ceiling((avg(Balance))) from accounts
+where AccountType ='current';
+
+-- floor function , round down
+select floor((avg(Balance))) from accounts
+where AccountType ='Current';
+
+select avg(amount) as AvgDeposit from transactions
+where transactionType = 'Debit';
+
+-- absolute it remove the sign (-, +)
+select abs(-344);
+
+-- mod , it return the remainder after the division
+
+select mod (7,3);  -- return the remainder
+select (7/3);  -- return the quitient
+
+-- power ()
+select power(2,3);
+select power(1.5,3);
+
+-- SQT ()
+select sqrt(232);
+
+-- Date function 
+-- Now Function -- return the current date and time
+select now();    -- return date and time
+select curdate();   -- return current date
+select curtime();	-- return cur time
+
+-- YEAR() MONTH() DAY()
+select year(dateofbirth),month(dateofbirth),day(dateofbirth) from customers;
+
+-- Datediff () function  -- it return thee number dayss between two dates
+
+select concat(FirstName," ",LastName) as Full_name ,DateOfBirth,
+floor(datediff(curdate(),DateofBirth )/365) as age
+from customers;
+
+
+
+select concat(FirstName," ",LastName) as Full_name ,DateOfBirth,
+timestampdiff(year,DateofBirth,curdate() ) as age
+from customers;
+
+-- Date_add function ,
+select concat(FirstName," ",LastName) as Full_name  , accountcreationdate,
+date_add(accountcreationdate, interval 1 year) as KYCRenewal from customers;
+
+
+
+
+
+
+
 
 
 
@@ -627,3 +698,41 @@ where AccountType = 'Saving' and
 	Balance > 25000 
     limit 3;
 
+
+-- 21.Display customers whose FirstName starts with 'P' and Phone IS NULL.
+select * from customers 
+where FirstName like "P%" and Phone is null ;
+
+-- 22.Display accounts whose balance is NOT BETWEEN ₹20,000 and ₹50,000.
+select * from accounts
+where Balance not between 20000 and 50000;
+
+-- 23.Display customers whose CustomerID is NOT IN (101,102,103).
+select * from customers
+where CustomerID not in(101,102,103);
+
+-- 24.Display transactions that are Withdrawal and amount is less than ₹5000.
+select * from transactions
+where TransactionType = 'debit' and Amount <5000;
+
+-- 25.Display customers whose email ends with gmail.com and phone number is available.
+select * from customers 
+where Email like '%gmail.com' and Phone is not null;
+
+-- 26.Display distinct transaction types whose amount is greater than ₹5000.
+select distinct transactiontype , transactionID , Amount from transactions
+where Amount > 5000;
+
+-- 27. Display all Savings accounts belonging to Branch 1 or Branch 3.
+select * from accounts
+where AccountType = 'saving' and BranchID in (1,2);
+
+-- 28.Display customers whose first name contains 'ha' and DateOfBirth is after 1997.
+select * from customers
+where FirstName	like '%ha%' and DateOfBirth > 1997-12-31;
+
+-- 29.Display accounts whose balance is greater than ₹30,000 but less than ₹80,000.
+select * from accounts 
+where Balance > 30000 and Balance <80000;
+
+-- 30 Display first 4 Deposit transactions after skipping first 2 deposits.
