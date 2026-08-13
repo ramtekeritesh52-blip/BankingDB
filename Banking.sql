@@ -579,6 +579,62 @@ from customers;
 select concat(FirstName," ",LastName) as Full_name  , accountcreationdate,
 date_add(accountcreationdate, interval 1 year) as KYCRenewal from customers;
 
+-- date sub function
+select date_sub(curdate(), interval 7 day);
+
+-- count function
+select * from customers; 
+select count(*) as Total_Customers from customers;			-- it count the number of rows with including the null value
+select count(phone) as Total_Customers from customers;  -- it count the only not null value
+
+-- sum() function
+select sum(Balance) as TotalBalance from accounts;
+select sum(balance) as SavingsTotal from accounts
+where AccountType = 'saving' ;
+
+-- avg function
+select avg(amount) from transactions;
+select floor(avg(amount)) as TotalDepositeTransaction from transactions
+where TransactionType = 'Credit';
+
+select avg(amount) as AverageDebitTransaction from transactions
+where TransactionType = 'debit';
+
+-- max() and min() function 
+
+select max(Balance) from accounts;
+-- find maximum balance in saving account
+select max(Balance) from accounts
+where AccountType = 'saving';
+
+-- find min balance in saving account
+select min(Balance) from accounts;
+select min(Balance) from accounts
+where AccountType = 'saving';
+
+-- GROUP BY
+select transactiontype ,sum(amount) from transactions
+group by (TransactionType);
+
+select * from accounts;
+-- account type , out 3 culmn , count account 
+select AccountType , 
+		count(*), 
+        sum(Balance) , 
+        avg(Balance) 
+from accounts
+group by (AccountType);
+
+-- find total accounts for branch and account type
+select BranchID,AccountType,
+        count(*)
+	from accounts
+    group by BranchID,AccountType
+    order by BranchID;
+    
+
+
+
 
 
 
