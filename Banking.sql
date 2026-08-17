@@ -652,6 +652,38 @@ GROUP BY Years
 order by years;
 
 
+-- inner join 
+-- find all customers having loans with their names ,  first name last name , 
+-- interest rate and loan amount
+
+select c.CustomerID, c.firstname , c.lastname , l.interestrate, l.loanAmount 
+from customers c 
+inner join loans l 
+on c.CustomerID = l.customerID;
+
+-- find the branch names for all the accountid 
+-- include accountid , accounttype and branchname , branchaddress.
+
+select a.AccountID , a.AccountType , b.branchname , b. branchaddress 
+from accounts a 
+inner join branches b
+on a.BranchID = b.BranchId
+where AccountType ='saving';
+
+-- find all the customers( name , phone , Accounttype , balance)  where account type is saving 
+select c.firstname ,c.phone , a.AccountType , a.Balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where AccountType = 'saving';
+
+
+select concat(c.firstname ," ", c.lastname) as Full_Name,c.phone , a.AccountType , a.Balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where AccountType = 'saving';
+
 
 
 
