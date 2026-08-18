@@ -684,6 +684,93 @@ inner join accounts a
 on c.CustomerID = a.CustomerID
 where AccountType = 'saving';
 
+-- insert values into the customer
+insert into customers 
+(CustomerID,FirstName,LastName,Email,Phone,DateOfBirth,AccountCreationDate)
+values 
+(110,'Pranay','Wath','pranay@gmail.com','7789568997','1995-02-12','2015-06-23'),
+(111,'Prakash','Bhat','prakash@gmail.com','9089568997','2000-02-12','2020-06-23'),
+(112,'Rehman','Khan','rehman@gmail.com','8778568997','2002-09-14','2026-06-23');
+
+-- left join
+-- firstname , lastname,phone,accounttype and balance
+select c.firstname , c.lastname,c.phone, a.AccountType, a.Balance
+from customers c
+left join accounts a
+on c.CustomerID =a.CustomerID;
+
+-- from accounts left join customers
+select c.firstname , c.lastname,c.phone, a.AccountType, a.Balance
+from  accounts a
+left join customers c
+on c.CustomerID =a.CustomerID;
+	
+-- right join 
+insert into branches
+(BranchID,BranchName,BranchAddress,BranchPhone)
+values
+(5,"Mumbai Branch" ,"Andheri Mumabai",'9089899898'),
+(6,"Nashik Branch" ,"near the tahsil office",'9956899898');
+
+insert into accounts
+(AccountID,AccountType,Balance,CustomerID,BranchID)
+values
+(211,'saving',65789,110,3),
+(212,'current',70789,111,5);
+
+insert into transactions
+(TransactionID,TransactionDate,Amount,TransactionType,AccountID)
+values
+(10,'2026-04-11',55000,'Credit',201),
+(11,'2024-02-11',60000,'Debit',202),
+(12,'2025-12-19',15000,'Credit',203),
+(13,'2026-08-11',40000,'Debit',204),
+(14,'2026-05-11',57000,'Credit',205),
+(15,'2026-03-23',4000,'Debit',206),
+(16,'2026-05-11',1000,'Credit',207),
+(17,'2024-10-11',5000,'Credit',208),
+(18,'2026-01-30',8000,'Debit',209),
+(19,'2026-04-11',55000,'Debit',203),
+(20,'2025-12-11',2000,'Credit',201);
+
+
+insert into transactions
+(TransactionID,TransactionDate,Amount,TransactionType,AccountID)
+values
+(21,'2026-10-11',15000,'Debit',208),
+(22,'2026-10-11',5000,'Credit',209);
+
+
+-- entry accounts 2 
+insert into accounts
+(AccountID,AccountType,Balance,CustomerID,BranchID)
+values
+(213,'current',40000,101,1),
+(214,'saving',4000,102,2);
+
+-- inner join 
+select concat(c.firstname," " ,c.lastname) as Full_Name , a.accountID ,a.accounttype,a.balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID;
+
+select c.CustomerID, concat_ws(" ",c.firstname,c.lastname) as Full_Name , a.accountID ,a.accounttype,a.balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+order by c.CustomerID;
+
+
+
+
+
+
+select * from transactions;
+select * from accounts;
+select * from customers;
+select * from branches;
+
+
 
 
 
