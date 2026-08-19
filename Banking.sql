@@ -761,6 +761,19 @@ on c.CustomerID = a.CustomerID
 order by c.CustomerID;
 
 
+-- full outer join 
+-- joining customers and accounts 
+
+select * from customers c
+left join accounts a 
+on c.CustomerID = a.CustomerID
+union
+select * from customers c
+right join accounts a 
+on c.CustomerID = a.CustomerID;
+
+-- cross join 
+
 
 
 
@@ -771,12 +784,93 @@ select * from customers;
 select * from branches;
 
 
+-- 1. Display customers who do not have a Current account.
+
+select c.customerID , c.firstname , a.AccountType ,a.AccountID
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where a.AccountType != 'current'
+order by c.CustomerID;
+
+-- 2. Display Customername,Accountcreation date,Accounttype,Balancefor customers whose account was created in 2025.
+select c.firstname , c.accountcreationdate,a.AccountType,a.Balance
+from customers c
+inner join accounts a 
+on c.CustomerID = a.CustomerID
+where year(accountcreationdate) = '2025';
+
+-- 3 3. Display:Customername,Accountcreation date,Accounttype and calculate the number of days since account creation.
+select 
+c.firstname , c.accountcreationdate , a.AccountType , datediff(curdate(),c.accountcreationdate) as NumberOfDays
+from customers c
+inner join accounts a 
+on c.CustomerID = a.CustomerID;
+
+-- 4. Find the number of accounts held by each customer.
+select c.CustomerID , c.firstname ,
+count(a.CustomerID) as NumberOFAccounts 
+from customers c 
+left join accounts a 
+on c.CustomerID = a.CustomerID
+group by c.CustomerID;
+
+select c.CustomerID ,c.firstname,
+		count(a.AccountID ) as NumberOFAccounts
+    from customers c
+    left join accounts a 
+    on c.CustomerID = a.CustomerID
+    group by c.CustomerID;
 
 
+-- 5. Find the total balance held by each customer.
+select c.CustomerID ,c.firstname,
+		sum(a.balance) as TotalBalance
+        from customers  c
+        left join accounts a 
+        on c.CustomerID = a.CustomerID
+        group by c.CustomerID;
+        
+-- 6 6. Find the number of customers for each account type.
+select a.AccountType ,
+		count(a.CustomerID) as NoCustForEachAccountType 
+        from customers c
+        left join accounts a 
+        on c.CustomerID = a.CustomerID
+        group by a.AccountType;
+        
+-- 7. Find the total balance for each account type.
+select a.AccountType,
+		sum();
+        
+-- 11. Find customers who have more than one account.
+select c.CustomerID , concat_ws(" ",c.firstname,c.lastname) as Full_name ,count(a.AccountID) as total_account
+		from customers c
+        inner join accounts a
+        on c.CustomerID =a.CustomerID
+        group by c.CustomerID
+        having total_account > 1;
+        
+--  14. Find customers who have never performed a transaction.
+   select  c.CustomerID ,
+			concat(c.firstname ," ",c.lastname ) as full_name , count(t.AccountID) as NoOfTransaction
+            from customers c
+            join accounts a
+            on c.CustomerID = a.CustomerID
+            left join transactions t
+            on a.AccountID = t.AccountID
+            group by CustomerID
+            having NoOFtransaction = 0;
 
 
-
-
+-- 15. Display all branches and their account count, including branches that have zero accounts.
+select b.BranchID ,b.BranchName , count(a.AccountID) as NoOFAccount
+		from branches b
+        left join accounts a 
+        on b.BranchID = a.BranchID
+        group by b.BranchId
+        having NoOfAccount > 2;
+      
 
 
 
@@ -799,6 +893,8 @@ select * from loans;
 select * from transactions;
 select * from branches;
 select * from customers;
+
+
 
 -- Display the CustomerID, FirstName and Email of customers whose AccountCreationDate is after 1- Jan-2025. 
 select CustomerID , FirstName , Email 
