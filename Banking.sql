@@ -774,6 +774,71 @@ on c.CustomerID = a.CustomerID;
 
 -- cross join 
 
+--  self join
+
+create table Employees (
+	EmployeeID int primary key,
+    EmployeeName varchar(50) not null,
+    ManagerID int,
+    Department varchar(50),
+    Salary DECIMAL(10,2),
+    joiningDate DATE,
+    BranchID INT ,
+    
+    foreign key ( managerID)
+    references Employees(EmployeeID),
+    
+    foreign key (branchID)
+    references Branches(BranchID)
+);
+
+INSERT INTO Employees
+    (EmployeeID, EmployeeName, ManagerID, Department, Salary, JoiningDate, BranchID)
+VALUES
+    (1, 'Rajesh Sharma', NULL, 'Management', 120000.00, '2018-04-15', 1),
+    (2, 'Priya Patel', 1, 'Human Resources', 75000.00, '2019-06-10', 2),
+    (3, 'Amit Kumar', 1, 'Finance', 82000.00, '2020-01-20', 3),
+    (4, 'Sneha Verma', 1, 'IT', 95000.00, '2019-09-05', 4),
+    (5, 'Rahul Singh', 1, 'Sales', 78000.00, '2021-03-12', 5),
+    (6, 'Neha Joshi', 2, 'Human Resources', 55000.00, '2021-07-19', 1),
+    (7, 'Vikas Gupta', 2, 'Human Resources', 52000.00, '2022-02-14', 2),
+    (8, 'Pooja Mehta', 3, 'Finance', 60000.00, '2021-11-08', 3),
+    (9, 'Suresh Yadav', 3, 'Finance', 58000.00, '2022-05-16', 4),
+    (10, 'Anjali Deshmukh', 4, 'IT', 72000.00, '2020-08-24', 5),
+    (11, 'Rohan Kulkarni', 4, 'IT', 68000.00, '2021-10-11', 1),
+    (12, 'Kavita Rao', 4, 'IT', 65000.00, '2022-01-17', 2),
+    (13, 'Arjun Malhotra', 5, 'Sales', 57000.00, '2022-06-20', 3),
+    (14, 'Meena Shah', 5, 'Sales', 59000.00, '2021-12-06', 4),
+    (15, 'Deepak Thakur', 5, 'Sales', 54000.00, '2023-01-09', 5),
+    (16, 'Nitin Pawar', 6, 'Human Resources', 42000.00, '2023-04-18', 1),
+    (17, 'Swati Mishra', 7, 'Human Resources', 40000.00, '2023-07-03', 2),
+    (18, 'Manish Jain', 8, 'Finance', 45000.00, '2023-02-27', 3),
+    (19, 'Komal Sinha', 9, 'Finance', 43000.00, '2023-08-14', 4),
+    (20, 'Akash Bansal', 10, 'IT', 50000.00, '2023-05-22', 5);
+    
+    
+select e.EmployeeID , e.EmployeeName as employeeName, m.EmployeeName as managerName 
+from employees e 
+left join employees m 
+on e.ManagerID = m.EmployeeID;
+
+select e.EmployeeID , e.EmployeeName as employeeName, m.EmployeeName as managerName  , b.branchname
+from employees e 
+left join employees m 
+on e.ManagerID = m.EmployeeID
+inner join branches b
+on e.BranchID = b.BranchId;
+
+
+-- find all the employees  who reports to the sneha verma 
+select e.EmployeeID , e.employeename,e.Department ,m.EmployeeName as managername
+from employees e
+left join employees m
+on e.ManagerID = m.EmployeeID
+where m.EmployeeName = "sneha verma";
+
+
+
 
 
 
@@ -840,9 +905,47 @@ select a.AccountType ,
         group by a.AccountType;
         
 -- 7. Find the total balance for each account type.
-select a.AccountType,
-		sum();
+select AccountType,
+		sum(Balance)  as TotalBalance
+        from accounts
+        group by AccountType;
         
+-- 8 Find the highest balance held by each account type.
+select AccountType, max(Balance) as HighestBalance
+		from accounts
+        group by AccountType;
+        
+-- 9 Find the number of customers for each branch.   CORECT ANS IS BELOW
+	select b.branchname , count(c.customerid) as NoOfAccounts
+		from customers c 
+        join accounts a
+        on a.CustomerID= c.CustomerID
+        left join branches b
+        on a.BranchID =b.BranchID
+        group by b.BranchName;
+        
+	select b.branchid , b.branchname , count(a.customerid) as NoOfAccounts
+		from  accounts a 
+       inner join branches b
+        on a.BranchID= b.BranchID
+        group by b.BranchId;
+        
+	--  CORRECT ANS FOR 9
+    select b.branchname ,count(a.customerid) as NoOfAccounts
+			from accounts a
+            right join branches b 
+            on a.BranchID = b.BranchID
+            group by b.BranchId;
+            
+	-- 10. Find customers whose total account balance is greater than ₹40,000.
+select c.CustomerID , c.FirstName, sum(a.Balance) as TotalAccountBalance
+		from customers c
+        inner join accounts a 
+        on c.CustomerID = a.CustomerID
+        group by c.CustomerID
+        having TotalAccountBalance > 40000;
+    
+   
 -- 11. Find customers who have more than one account.
 select c.CustomerID , concat_ws(" ",c.firstname,c.lastname) as Full_name ,count(a.AccountID) as total_account
 		from customers c
@@ -850,6 +953,21 @@ select c.CustomerID , concat_ws(" ",c.firstname,c.lastname) as Full_name ,count(
         on c.CustomerID =a.CustomerID
         group by c.CustomerID
         having total_account > 1;
+        
+-- 12  Find customers who do not have an account.
+select c.FirstName , a.AccountID 
+	from customers c
+    left join accounts a 
+    on c.CustomerID  = a.CustomerID
+    where a.AccountID is null;
+    
+-- 13. Find customers who do not have any loan.
+		select c.CustomerID, c.FirstName ,l.loanid
+			from customers c 
+            left join loans l 
+            on c.CustomerID = l.LoanId
+            where l.LoanId is null;
+
         
 --  14. Find customers who have never performed a transaction.
    select  c.CustomerID ,
@@ -868,8 +986,10 @@ select b.BranchID ,b.BranchName , count(a.AccountID) as NoOFAccount
 		from branches b
         left join accounts a 
         on b.BranchID = a.BranchID
-        group by b.BranchId
+        group by b.BranchId  
         having NoOfAccount > 2;
+        
+
       
 
 
