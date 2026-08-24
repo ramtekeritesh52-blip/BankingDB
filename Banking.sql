@@ -829,13 +829,64 @@ on e.ManagerID = m.EmployeeID
 inner join branches b
 on e.BranchID = b.BranchId;
 
-
+-- self join 2
 -- find all the employees  who reports to the sneha verma 
 select e.EmployeeID , e.employeename,e.Department ,m.EmployeeName as managername
 from employees e
 left join employees m
 on e.ManagerID = m.EmployeeID
 where m.EmployeeName = "sneha verma";
+
+
+-- subqueries
+-- find all customers whose balance is greater than avg balance 
+select avg(balance) as AVG_BALANCE from accounts
+where AccountType = 'saving';
+
+select c.CustomerID, c.firstname , avg(balance) as Avg_Bal from  customers c 
+join accounts a
+on c.CustomerID = a.CustomerID
+where a.AccountType ='saving'
+group by c.firstname,c.CustomerID
+having Avg_Bal> 34898 ;
+
+-- subqueries
+-- scaler subquery
+-- find all customers whose balance is greater than avg balance 
+-- account type = 'saving'
+
+select accountID , customerid 
+from accounts
+where balance > (
+	select avg(balance) from accounts
+    where AccountType = 'saving'
+) && AccountType = 'saving';
+
+
+select c.customerid, c.firstname  , a.accountID 
+from accounts a 
+inner join customers c 
+on c.CustomerID = a.CustomerID
+where a.balance > (
+	select avg(balance)  from accounts
+    where AccountType = 'saving'
+) && AccountType = 'saving';
+
+
+-- find the acounts having highest balance 
+select AccountID , balance from accounts
+where balance = (
+		select max(Balance) from accounts
+);
+
+-- find a customers whose year of birth is earlier than the average year of birth of all customers 
+select firstname ,dateofbirth, year(dateofbirth)as YearOFBirth  from customers
+where year(DateOfBirth) < (
+		select floor(avg(year(dateofbirth) )) from customers
+);
+
+
+
 
 
 
@@ -1390,6 +1441,108 @@ where firstname like '%a%' and LastName not like '%a%';
 select * from customers
 order by FirstName
 limit 4 offset 3;
+
+
+
+-- sql queries basic
+-- 1 Display the CustomerID, FirstName and Email of customers whose AccountCreationDate is after 1-Jan-2025customers
+select CustomerID , Firstname , Email , AccountCreationDate from customers
+where AccountCreationDate > 2025-02-01;
+
+-- 2 Display all Savings accounts having balance greater than ₹20,000.
+select * from accounts 
+where AccountType = 'saving' and balance >20000;
+
+-- 3 Display customers whose Phone number is NOT NULL.
+select * from customers 
+where phone is not null;
+
+-- 4 Display distinct Account Types available in the Accounts table.
+select distinct AccountType from accounts;
+
+--  5 Display customers whose FirstName starts with 'R'.
+select * from customers
+where FirstName like 'r%' ;
+
+-- 6 Display accounts having Balance between ₹20,000 and ₹60,000.
+select * from accounts 
+where balance between 20000 and 60000;
+
+-- 7  Display all Deposit transactions whose amount is greater than ₹3000.
+select * from transactions 
+where amount > 3000;
+
+
+-- Part 1 — INNER JOIN: Basic
+-- Level 1 — Simple INNER JOIN
+
+-- 1 . Display the CustomerID, FirstName, LastName, AccountType, and Balance of all customers who have an account.
+select c.CustomerID , c.firstname , c.lastname , a.AccountType , a.balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID;
+
+-- 2 Display the customer's full name along with their AccountID, AccountType, and Balance.
+-- Use CONCAT() to combine first name and last name.
+
+select concat_ws(' ',c.firstname ,c.lastname) as full_name , a.AccountID , a.AccountType , a.Balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID;
+
+
+-- Display all customers who have a Savings account.
+-- Output:
+-- Customer Name, AccountID, Balance
+
+select c.firstname , a.AccountID , a.AccountType, a.balance 
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where AccountType = 'saving';
+
+-- 4 Display customers whose account balance is greater than 30000.
+-- Output:
+-- Customer Name, AccountType, Balance
+
+select c.firstname , a.AccountType , a.Balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID;
+
+-- 5 Display customers having either a Savings or Current account. Use IN.
+select c.CustomerID , c.firstname ,a.AccountType 
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where AccountType in('saving','Current');
+
+-- 6 Display customers whose account type is not Savings. Use NOT IN.
+select c.CustomerID , c.firstname , a.AccountType 
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where AccountType not in('saving');
+
+-- BETWEEN
+-- 7 Display customers whose account balance is between 20,000 and 50,000.
+-- Output:
+-- Customer Name, AccountType, Balance
+
+select c.firstname , a.AccountType , a.Balance
+from customers c
+inner join accounts a 
+on c.CustomerID = a.CustomerID
+where Balance between 20000 and 50000;
+
+-- 8 LIKE
+Display customers whose first name starts with 'S'
+Output:
+Customer Name, AccountType, Balance;
+
+
+
+
 
 
 
