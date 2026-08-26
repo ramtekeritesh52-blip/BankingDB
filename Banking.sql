@@ -885,6 +885,88 @@ where year(DateOfBirth) < (
 		select floor(avg(year(dateofbirth) )) from customers
 );
 
+-- multi row subquery
+-- find all customers who have taken at least one loan
+
+select CustomerID , FirstName ,phone from customers
+where CustomerID in (
+		select CustomerID 
+        from loans
+        );
+
+-- find all customers who have at least one saving account
+select customerid , firstname , phone from customers
+where CustomerID in(
+		select CustomerID  from accounts
+        where AccountType = 'saving'
+		);
+
+-- find all customers who have an account in branchId = 1 
+select customerid , FirstName from customers
+where CustomerID in (
+		select CustomerID from accounts
+        where BranchID = 1
+);
+
+-- find all accounts whose balance is greater than 
+-- any account in brnachID = 1
+
+select accountid , balance from accounts
+where balance > any(
+		select AccountID from accounts
+        where BranchID = 1
+);
+-- find all accounts whose balance is greater than 
+-- all account in brnachID = 1
+select accountid , balance from accounts
+where balance > all(
+		select AccountID from accounts
+        where BranchID = 1
+);
+
+-- find the branch with the highest average account balance 
+select branchid , balance from accounts
+where Balance > any(
+			select BranchID, avg(Balance)from accounts
+
+);
+
+
+-- find account whoes balance is greater than 
+-- the average balance of their respective branch
+
+select a.AccountID , a.balance ,BranchID  from accounts a
+where a.Balance > ( 
+					select avg(a1.Balance)  from accounts a1
+                    where a.branchid = a1.branchid
+				);
+
+-- find employees whose salary is greaater than the average salary of their respective department
+select e.employeeid , e.salary , e.department
+from employees e 
+where e.Salary > (
+		select avg(e1.Salary) from employees e1
+        where e.Department = e1.Department
+);
+
+-- find customers who have more than one account
+select c.customerid , c.FirstName from customers c 
+where (
+		select count(*) from accounts a
+        where c.CustomerID = a.CustomerID
+) > 1;
+
+-- table subquery / derived table 
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1042,7 +1124,8 @@ select b.BranchID ,b.BranchName , count(a.AccountID) as NoOFAccount
         
 
       
-
+-- find account whoe balance is greater than 
+-- the average balance of their respective branch
 
 
 
@@ -1535,10 +1618,213 @@ inner join accounts a
 on c.CustomerID = a.CustomerID
 where Balance between 20000 and 50000;
 
--- 8 LIKE
-Display customers whose first name starts with 'S'
-Output:
-Customer Name, AccountType, Balance;
+
+-- Q8. LIKE
+-- Display customers whose first name starts with 'S'.
+-- Output:
+-- Customer Name, AccountType, Balance
+
+select c.firstname , a.AccountType , a.Balance 
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where FirstName like 's%' ;
+
+-- Q9. LIKE + CONCAT
+-- Display the full name and account details of customers whose last name ends with 'a'.
+
+select concat_ws(' ',c.firstname , c.lastname) as FullName , a.*
+from customers c 
+inner join accounts a 
+on c.CustomerID = a.CustomerID
+where lastname  like '%a';
+
+-- Q10. Multiple WHERE conditions
+-- Display customers who:
+-- •	have a Savings account 
+-- •	AND balance is greater than 20,000
+
+select c.firstname  , a.AccountType , a.balance 
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where a.AccountType = 'saving' and Balance > 20000;
+
+-- Q11. OR condition
+-- Display customers who:
+-- •	have a Savings account 
+-- •	OR have a balance greater than 70,000 
+
+select c.firstname , a.AccountType , a.Balance
+from customers c 
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where AccountType = 'saving' or balance >70000;
+
+-- Q12. NOT
+-- Display customers who do not have a Current account.
+
+select c.CustomerID , a.AccountType 
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where a.AccountType not in('current');
+
+
+-- Part 3 — INNER JOIN + String Functions
+-- Q13.
+-- Display:
+-- •	Customer ID 
+-- •	Full name in uppercase 
+-- •	Account type 
+-- •	Balance 
+-- Use:
+-- UPPER()
+-- CONCAT()
+
+select c.CustomerID , upper(concat(c.firstname," " , c.lastname)) as Full_Name,  a.AccountType ,a.balance
+from customers  c
+inner join accounts a
+on c.CustomerID = a.CustomerID;
+
+-- Q14.
+-- Display the customer's name in the following format:
+-- R.Sharma
+-- K.Tiwari
+-- N.Singh
+-- Use SUBSTRING() and CONCAT().
+
+select concat(substring(firstname ,1,1),".", lastname ) as full_name from customers;
+
+-- Q15.
+-- Display customers whose first name contains the letter 'a'.
+-- Use LIKE.
+
+select firstname from customers 
+where FirstName like "%a%";
+
+-- Q16.
+-- Display:
+-- •	Customer ID 
+-- •	Full name 
+-- •	Number of characters in the customer's first name 
+-- •	Account balance 
+-- Use CHAR_LENGTH().
+
+
+select c.CustomerID , concat_ws(" " , c.firstname ,c.lastname) as FullName , char_length(c.firstname) as Charlenght, a.Balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID;
+
+
+-- Q17.
+-- Display customers whose first name has exactly 5 characters.
+-- Use:
+-- CHAR_LENGTH()
+select firstname , char_length(firstname) as ch_length from customers
+where char_length(firstname) = 5;
+
+-- Part 4 — INNER JOIN + Date Functions
+-- Now combine Customers and Accounts.
+-- Q18.
+-- Display:
+-- •	Customer name 
+-- •	Account creation date 
+-- •	Account type 
+-- •	Balance 
+-- for customers whose account was created in 2025.
+-- Use:
+-- YEAR()
+
+select c.firstname , c.accountCreationDate , a.AccountType , a.Balance
+from customers c
+inner join accounts a
+on c.CustomerID = a.CustomerID
+where year(c.accountCreationDate) = 2025;
+
+-- Q19.
+-- Display customers whose account was created after 1 January 2025.
+select c.customerid ,  c.firstname , c.accountcreationdate  from customers c
+where c.accountcreationdate > 2025-01-01;
+
+-- Q20.
+-- Display customers whose account was created between:
+-- 2025-01-01
+-- and
+-- 2025-12-31
+-- Use BETWEEN.
+
+select CustomerID , accountCreationdate from customers 
+where AccountCreationDate between '2025-01-01' and '2025-12-31';
+
+-- Q21.
+-- Display:
+-- •	Customer name 
+-- •	Account creation date 
+-- •	Account type 
+-- and calculate the number of days since account creation.
+-- Use:
+-- DATEDIFF()
+
+select c.firstname , c.accountcreationdate , a.AccountType , datediff(curdate(),c.accountcreationdate) as NoOfDays
+from customers c
+inner join accounts a
+on c.CustomerID= a.CustomerID;
+
+-- Q22.
+-- Display:
+-- •	Customer name 
+-- •	Date of birth 
+-- •	Age 
+-- along with their account information.
+-- Use:
+-- DATEDIFF()
+-- and calculate approximate age in years.
+
+select c.firstname , c.DateOfBirth , timestampdiff(year,c.dateofbirth,curdate()) as age
+from customers c 
+inner join accounts a
+on c.CustomerID = a.CustomerID;
+
+-- Part 5 — INNER JOIN + Aggregate Functions
+-- Now the questions become more interesting.
+-- Q23.
+-- Find the total balance held by all customers.
+-- Output:
+-- Total Balance
+-- Use:
+-- SUM()
+
+select  sum(a.Balance)  as TotalBalance
+from customers c
+inner join accounts a 
+on c.CustomerID =a.CustomerID;
+
+select sum(Balance)  as TotalBalance from accounts ;
+
+-- Q24.
+-- Find the average account balance of customers.
+select avg(a.Balance)  as TotalBalance
+from customers c
+inner join accounts a 
+on c.CustomerID =a.CustomerID;
+
+select avg(Balance) from accounts;
+
+-- Q25.
+-- Find the maximum account balance among customers.
+select max(balance) from accounts;
+
+
+
+
+
+
+
+
+ 
+
 
 
 
