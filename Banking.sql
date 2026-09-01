@@ -957,12 +957,136 @@ where (
 ) > 1;
 
 -- table subquery / derived table 
+-- Find the average account balance for each accout type
+-- using derived table 
+
+select  AccountData.AccountType , AccountData.Average_Acc_Bal
+from (
+		select accounttype , avg(balance) as Average_Acc_Bal
+        from accounts
+        group by AccountType
+		) as  AccountData;
+        
+-- Display only those account type whose average balance is greater than 40000
+select  AccountData.AccountType , AccountData.Average_Acc_Bal
+from (
+		select accounttype , avg(balance) as Average_Acc_Bal
+        from accounts
+        group by AccountType
+	 ) as  AccountData
+where AccountData.Average_Acc_Bal >40000;
+
+-- find the top 3 customers based on their total account balance 
+select AccountBal.customerID , AccountBal.TotalBalance
+from (
+		select customerID , sum(balance) as TotalBalance
+        from accounts 
+        group by customerID 
+	) as AccountBal
+order by TotalBalance desc
+limit 3;
 
 
+select AccountBal.customerID,accountbal.FirstName , AccountBal.TotalBalance
+from (
+		select  c.FirstName ,c.customerID , sum(a.balance) as TotalBalance
+        from accounts a
+        join customers c
+        on a.CustomerID = c.CustomerID
+        group by customerID 
+	) as AccountBal
+order by AccountBal.TotalBalance desc
+limit 3;
+
+-- SUBQUER INSIDE SELECT CLAUSE SELECT CLAUSE 
+ -- Display each Customers along with the number of account they have 
+select c.customerID ,
+		c.firstname ,
+        (select count(*) from accounts a
+        where c.CustomerID = a.CustomerID
+        ) as account_count
+from customers c;
+ 
+-- subquery inside update clause 
+-- increase the balance of acconts belonging to customers 
+-- who have taken a loan by 5%
+update accounts
+set balance = balance + balance*0.05
+where customerid in (
+		select customerid from  loans
+);
+
+-- subquery inside the delete clause
+-- withdrwal type less than 1000 
+delete from transactions 
+where accountid in(
+	select AccountID FROM (select AccountID from transactions
+    where TransactionType = 'debit' and amount <= 2000) as temp
+)and TransactionType = 'debit' ;
+
+delete from transactions 
+where accountid in(
+	select AccountID FROM (select AccountID from transactions
+    where TransactionType = 'debit' and amount < 3500) as temp
+)and TransactionType ='debit';
+
+select * from accounts;
+
+-- create 34
+-- seperate table high value customer , accid, bal, custid , brid
+create table HighValueAccounts(
+AccountID int,
+customerID int ,
+BranchId int ,
+AccountType varchar(20),
+Balance decimal(10,2),
+foreign key (customerid) references customers (customerid),
+foreign key (BranchId) references branches (BranchId)
+);
+desc HighValueAccounts;
+
+insert into HighValueAccounts
+(AccountID,customerid,branchid,accounttype,balance)
+select AccountID,customerid,branchid,accounttype,balance from accounts
+where balance > (
+		select avg(balance) from accounts
+);
 
 
+-- create high balance customers table and insert customers whose balance ig > 50000
+
+create table HighBalanceCustomers(
+customerid int,
+balance decimal(10,2)
+);
+
+insert into HighBalanceCustomers
+(customerid , balance) 
+select customerid , balance from accounts
+where Balance in (
+    select Balance  from accounts
+    where Balance > 50000
+);
 
 
+insert into HighBalanceCustomers
+(customerid , balance) 
+select customerid , totalbalance from 
+		(select customerid ,sum(balance) as totalbalance
+		from accounts
+        group by CustomerID )  as custbalance
+where totalbalance > 50000;
+
+TRUNCATE TABLE HighBalanceCustomers;
+select * from HighBalanceCustomers;
+
+
+-- SQL VIEWS
+create view PremiumAccounts as 
+select accountid , accounttype ,balance , customerid from accounts 
+where balance > 50000;
+
+select * from premiumaccounts;
 
 
 
